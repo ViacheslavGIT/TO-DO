@@ -1,39 +1,35 @@
-import { useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { useDispatch, useSelector } from "react-redux";
 
 import ListItem from "./listItem";
+import {
+  addItem,
+  deleteItem,
+  compliteItem,
+  setValue,
+} from "../store/slices/toDoSlice";
 
 const MainComponent = () => {
-  const [value, setValue] = useState("");
-  const [list, setList] = useState([]);
+  const dispatch = useDispatch();
+  const toDoObj = useSelector((state) => state.toDo);
+  const { value, list } = toDoObj;
 
   const handleAddItem = () => {
-    setValue("");
     if (value.trim()) {
-      setList([...list, { name: value, isDone: false }]);
+      dispatch(addItem(value));
     } else {
       return;
     }
+    dispatch(setValue(""));
   };
 
-  const deleteItem = (name) => {
-    setList(list.filter((item) => item.name !== name));
+  const handleDeleteItem = (name) => {
+    dispatch(deleteItem(name));
   };
 
   const completeItem = (name) => {
-    const updatedList = list.map((element) => {
-      if (element.name === name) {
-        if (element.isDone) {
-          return { ...element, isDone: false };
-        } else {
-          return { ...element, isDone: true };
-        }
-      } else {
-        return element;
-      }
-    });
-    setList(updatedList);
+    dispatch(compliteItem(name));
   };
 
   return (
@@ -44,7 +40,7 @@ const MainComponent = () => {
           id="outlined-basic"
           value={value}
           variant="outlined"
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => dispatch(setValue(e.target.value))}
           size="small"
           multiline
           maxRows={4}
@@ -62,7 +58,7 @@ const MainComponent = () => {
             name={el.name}
             isDone={el.isDone}
             completeItem={completeItem}
-            deleteItem={deleteItem}
+            deleteItem={handleDeleteItem}
             key={`${el.name}_${index}`}
           />
         ))}
